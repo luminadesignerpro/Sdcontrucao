@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Trash2, X, Pencil, Calendar, CheckCircle2, Circle, Cloud, Users2, FileSignature } from "lucide-react";
 import { useAppData } from "../context/AppData.jsx";
 import AssinaturaDigital from "./AssinaturaDigital.jsx";
@@ -83,15 +84,20 @@ export default function GestaoObra() {
 
   return (
     <div style={wrapperStyle}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px", marginBottom: "18px" }}>
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px", marginBottom: "18px" }}
+      >
         <div>
           <div style={eyebrow}>Obras</div>
           <div style={{ fontSize: "18px", fontWeight: 600 }}>Gestão de Obra</div>
         </div>
-        <button onClick={openNew} style={primaryBtn}>
+        <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }} onClick={openNew} style={primaryBtn}>
           <Plus size={14} /> Nova obra
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
 
       {/* Seção de destaque com scroll horizontal */}
       <div style={{ marginBottom: "20px" }}>
@@ -99,179 +105,248 @@ export default function GestaoObra() {
       </div>
 
       {obras.length === 0 && (
-        <div style={{ fontSize: "13px", color: "#5B7A99", padding: "20px 0", textAlign: "center" }}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          style={{ fontSize: "13px", color: "#5B7A99", padding: "20px 0", textAlign: "center" }}
+        >
           Nenhuma obra cadastrada ainda.
-        </div>
+        </motion.div>
       )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-        {obras.map((obra) => {
-          const isOpen = expandedId === obra.id;
-          const pct = progresso(obra);
-          const equipeDaObra = funcionarios.filter((f) => String(f.obraId) === String(obra.id));
-          return (
-            <div key={obra.id} style={cardStyle}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "10px" }}>
-                <div style={{ flex: 1, minWidth: "160px" }}>
-                  <div style={{ fontSize: "15px", fontWeight: 600 }}>{obra.nome}</div>
-                  <div style={{ fontSize: "12px", color: "#8FA6BC" }}>{obra.cliente || "Sem cliente definido"}{obra.endereco ? " · " + obra.endereco : ""}</div>
-                  {equipeDaObra.length > 0 && (
-                    <div style={{ fontSize: "11.5px", color: "#5B7A99", display: "flex", alignItems: "center", gap: "5px", marginTop: "4px" }}>
-                      <Users2 size={12} /> {equipeDaObra.length} da equipe vinculado(s)
-                    </div>
-                  )}
-                </div>
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <button onClick={() => openEdit(obra)} style={iconBtn}><Pencil size={14} /></button>
-                  <button onClick={() => removeObra(obra.id)} style={{ ...iconBtn, borderColor: "#B0555A", color: "#F2A0A5" }}><Trash2 size={14} /></button>
-                </div>
-              </div>
-
-              {/* Barra de progresso */}
-              <div style={{ marginTop: "12px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#8FA6BC", marginBottom: "4px" }}>
-                  <span>Progresso</span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{pct}%</span>
-                </div>
-                <div style={{ height: "6px", background: "#132339", borderRadius: "4px", overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: `${pct}%`, background: "#F2A93B", transition: "width 0.2s" }} />
-                </div>
-              </div>
-
-              {/* Etapas */}
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "12px" }}>
-                {obra.etapas?.map((etapa, idx) => (
-                  <button key={etapa.nome} onClick={() => toggleEtapa(obra, idx)} style={etapaChip(etapa.concluida)}>
-                    {etapa.concluida ? <CheckCircle2 size={13} /> : <Circle size={13} />}
-                    {etapa.nome}
-                  </button>
-                ))}
-              </div>
-
-              {/* Toggle diário + assinatura */}
-              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "12px" }}>
-                <button
-                  onClick={() => setExpandedId(isOpen ? null : obra.id)}
-                  style={secondaryBtn}
-                >
-                  <Calendar size={13} /> Diário de Obra ({obra.diario?.length || 0})
-                </button>
-                <button onClick={() => setObraAssinatura(obra)} style={{ ...secondaryBtn, borderColor: obra.contrato?.assinado ? "#4ADE80" : "#1E3350", color: obra.contrato?.assinado ? "#4ADE80" : "#8FA6BC" }}>
-                  <FileSignature size={13} /> {obra.contrato?.assinado ? "Contrato assinado" : "Assinatura do contrato"}
-                </button>
-              </div>
-
-              {isOpen && (
-                <div style={{ marginTop: "12px", borderTop: "1px solid #1E3350", paddingTop: "12px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                    <div style={eyebrow}>Registros</div>
-                    <button onClick={() => abrirDiario(obra)} style={secondaryBtn}><Plus size={12} /> Novo registro</button>
+        <AnimatePresence initial={false}>
+          {obras.map((obra) => {
+            const isOpen = expandedId === obra.id;
+            const pct = progresso(obra);
+            const equipeDaObra = funcionarios.filter((f) => String(f.obraId) === String(obra.id));
+            return (
+              <motion.div
+                key={obra.id}
+                layout
+                initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.2 } }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                style={cardStyle}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "10px" }}>
+                  <div style={{ flex: 1, minWidth: "160px" }}>
+                    <div style={{ fontSize: "15px", fontWeight: 600 }}>{obra.nome}</div>
+                    <div style={{ fontSize: "12px", color: "#8FA6BC" }}>{obra.cliente || "Sem cliente definido"}{obra.endereco ? " · " + obra.endereco : ""}</div>
+                    {equipeDaObra.length > 0 && (
+                      <div style={{ fontSize: "11.5px", color: "#5B7A99", display: "flex", alignItems: "center", gap: "5px", marginTop: "4px" }}>
+                        <Users2 size={12} /> {equipeDaObra.length} da equipe vinculado(s)
+                      </div>
+                    )}
                   </div>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <motion.button whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }} onClick={() => openEdit(obra)} style={iconBtn}><Pencil size={14} /></motion.button>
+                    <motion.button whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }} onClick={() => removeObra(obra.id)} style={{ ...iconBtn, borderColor: "#B0555A", color: "#F2A0A5" }}><Trash2 size={14} /></motion.button>
+                  </div>
+                </div>
 
-                  {(!obra.diario || obra.diario.length === 0) && (
-                    <div style={{ fontSize: "12px", color: "#5B7A99" }}>Nenhum registro ainda.</div>
-                  )}
+                {/* Barra de progresso */}
+                <div style={{ marginTop: "12px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#8FA6BC", marginBottom: "4px" }}>
+                    <span>Progresso</span>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{pct}%</span>
+                  </div>
+                  <div style={{ height: "6px", background: "#132339", borderRadius: "4px", overflow: "hidden" }}>
+                    <motion.div
+                      animate={{ width: `${pct}%` }}
+                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                      style={{ height: "100%", background: "#F2A93B" }}
+                    />
+                  </div>
+                </div>
 
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    {obra.diario?.slice().reverse().map((d) => (
-                      <div key={d.id} style={diarioRowStyle}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: "12.5px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
-                            {d.data}
-                            <span style={{ fontSize: "11px", color: "#8FA6BC", display: "flex", alignItems: "center", gap: "4px" }}>
-                              <Cloud size={11} /> {d.clima}
-                            </span>
-                          </div>
-                          {d.equipePresente && <div style={{ fontSize: "11.5px", color: "#8FA6BC" }}>Equipe: {d.equipePresente}</div>}
-                          {d.observacoes && <div style={{ fontSize: "12px", marginTop: "4px" }}>{d.observacoes}</div>}
+                {/* Etapas */}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "12px" }}>
+                  {obra.etapas?.map((etapa, idx) => (
+                    <motion.button
+                      key={etapa.nome}
+                      whileTap={{ scale: 0.94 }}
+                      onClick={() => toggleEtapa(obra, idx)}
+                      style={etapaChip(etapa.concluida)}
+                    >
+                      {etapa.concluida ? <CheckCircle2 size={13} /> : <Circle size={13} />}
+                      {etapa.nome}
+                    </motion.button>
+                  ))}
+                </div>
+
+                {/* Toggle diário + assinatura */}
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "12px" }}>
+                  <motion.button whileTap={{ scale: 0.96 }} onClick={() => setExpandedId(isOpen ? null : obra.id)} style={secondaryBtn}>
+                    <Calendar size={13} /> Diário de Obra ({obra.diario?.length || 0})
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.96 }}
+                    onClick={() => setObraAssinatura(obra)}
+                    style={{ ...secondaryBtn, borderColor: obra.contrato?.assinado ? "#4ADE80" : "#1E3350", color: obra.contrato?.assinado ? "#4ADE80" : "#8FA6BC" }}
+                  >
+                    <FileSignature size={13} /> {obra.contrato?.assinado ? "Contrato assinado" : "Assinatura do contrato"}
+                  </motion.button>
+                </div>
+
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
+                      style={{ overflow: "hidden" }}
+                    >
+                      <div style={{ marginTop: "12px", borderTop: "1px solid #1E3350", paddingTop: "12px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                          <div style={eyebrow}>Registros</div>
+                          <motion.button whileTap={{ scale: 0.94 }} onClick={() => abrirDiario(obra)} style={secondaryBtn}><Plus size={12} /> Novo registro</motion.button>
                         </div>
-                        <button onClick={() => removerRegistroDiario(obra, d.id)} style={{ ...iconBtn, width: "26px", height: "26px", borderColor: "#B0555A", color: "#F2A0A5" }}>
-                          <Trash2 size={12} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
 
-                  {showDiarioForm && (
-                    <div style={{ marginTop: "12px", background: "#132339", border: "1px solid #1E3350", borderRadius: "8px", padding: "12px" }}>
-                      <div style={{ display: "flex", gap: "8px" }}>
-                        <label style={{ ...labelStyle, flex: 1 }}>
-                          Data
-                          <input type="date" value={diarioForm.data} onChange={(e) => setDiarioForm({ ...diarioForm, data: e.target.value })} style={inputStyle} />
-                        </label>
-                        <label style={{ ...labelStyle, flex: 1 }}>
-                          Clima
-                          <select value={diarioForm.clima} onChange={(e) => setDiarioForm({ ...diarioForm, clima: e.target.value })} style={inputStyle}>
-                            {CLIMA_OPCOES.map((c) => <option key={c} value={c}>{c}</option>)}
-                          </select>
-                        </label>
+                        {(!obra.diario || obra.diario.length === 0) && (
+                          <div style={{ fontSize: "12px", color: "#5B7A99" }}>Nenhum registro ainda.</div>
+                        )}
+
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <AnimatePresence initial={false}>
+                            {obra.diario?.slice().reverse().map((d) => (
+                              <motion.div
+                                key={d.id}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 10 }}
+                                transition={{ duration: 0.2 }}
+                                style={diarioRowStyle}
+                              >
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ fontSize: "12.5px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
+                                    {d.data}
+                                    <span style={{ fontSize: "11px", color: "#8FA6BC", display: "flex", alignItems: "center", gap: "4px" }}>
+                                      <Cloud size={11} /> {d.clima}
+                                    </span>
+                                  </div>
+                                  {d.equipePresente && <div style={{ fontSize: "11.5px", color: "#8FA6BC" }}>Equipe: {d.equipePresente}</div>}
+                                  {d.observacoes && <div style={{ fontSize: "12px", marginTop: "4px" }}>{d.observacoes}</div>}
+                                </div>
+                                <motion.button whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }} onClick={() => removerRegistroDiario(obra, d.id)} style={{ ...iconBtn, width: "26px", height: "26px", borderColor: "#B0555A", color: "#F2A0A5" }}>
+                                  <Trash2 size={12} />
+                                </motion.button>
+                              </motion.div>
+                            ))}
+                          </AnimatePresence>
+                        </div>
+
+                        <AnimatePresence>
+                          {showDiarioForm && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -8 }}
+                              transition={{ duration: 0.25 }}
+                              style={{ marginTop: "12px", background: "#132339", border: "1px solid #1E3350", borderRadius: "8px", padding: "12px" }}
+                            >
+                              <div style={{ display: "flex", gap: "8px" }}>
+                                <label style={{ ...labelStyle, flex: 1 }}>
+                                  Data
+                                  <input type="date" value={diarioForm.data} onChange={(e) => setDiarioForm({ ...diarioForm, data: e.target.value })} style={inputStyle} />
+                                </label>
+                                <label style={{ ...labelStyle, flex: 1 }}>
+                                  Clima
+                                  <select value={diarioForm.clima} onChange={(e) => setDiarioForm({ ...diarioForm, clima: e.target.value })} style={inputStyle}>
+                                    {CLIMA_OPCOES.map((c) => <option key={c} value={c}>{c}</option>)}
+                                  </select>
+                                </label>
+                              </div>
+                              <label style={labelStyle}>
+                                Equipe presente
+                                <input value={diarioForm.equipePresente} onChange={(e) => setDiarioForm({ ...diarioForm, equipePresente: e.target.value })} style={inputStyle} placeholder="Ex: 3 pedreiros, 2 seventes" />
+                              </label>
+                              <label style={labelStyle}>
+                                Observações do dia
+                                <textarea
+                                  value={diarioForm.observacoes}
+                                  onChange={(e) => setDiarioForm({ ...diarioForm, observacoes: e.target.value })}
+                                  style={{ ...inputStyle, minHeight: "60px", resize: "vertical" }}
+                                  placeholder="Ex: Concluída a alvenaria do 1º pavimento"
+                                />
+                              </label>
+                              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => salvarDiario(obra)} style={{ ...primaryBtn, width: "100%", justifyContent: "center" }}>
+                                Salvar registro
+                              </motion.button>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
-                      <label style={labelStyle}>
-                        Equipe presente
-                        <input value={diarioForm.equipePresente} onChange={(e) => setDiarioForm({ ...diarioForm, equipePresente: e.target.value })} style={inputStyle} placeholder="Ex: 3 pedreiros, 2 seventes" />
-                      </label>
-                      <label style={labelStyle}>
-                        Observações do dia
-                        <textarea
-                          value={diarioForm.observacoes}
-                          onChange={(e) => setDiarioForm({ ...diarioForm, observacoes: e.target.value })}
-                          style={{ ...inputStyle, minHeight: "60px", resize: "vertical" }}
-                          placeholder="Ex: Concluída a alvenaria do 1º pavimento"
-                        />
-                      </label>
-                      <button onClick={() => salvarDiario(obra)} style={{ ...primaryBtn, width: "100%", justifyContent: "center" }}>
-                        Salvar registro
-                      </button>
-                    </div>
+                    </motion.div>
                   )}
-                </div>
-              )}
-            </div>
-          );
-        })}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </div>
 
-      {showForm && (
-        <div style={modalOverlay} onClick={() => setShowForm(false)}>
-          <div onClick={(e) => e.stopPropagation()} style={modalBox}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
-              <div style={{ fontSize: "14px", fontWeight: 600 }}>{editId ? "Editar obra" : "Nova obra"}</div>
-              <button onClick={() => setShowForm(false)} style={{ background: "none", border: "none", color: "#8FA6BC", cursor: "pointer" }}><X size={16} /></button>
-            </div>
+      <AnimatePresence>
+        {showForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            style={modalOverlay}
+            onClick={() => setShowForm(false)}
+          >
+            <motion.div
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.92, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 16 }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              style={modalBox}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+                <div style={{ fontSize: "14px", fontWeight: 600 }}>{editId ? "Editar obra" : "Nova obra"}</div>
+                <button onClick={() => setShowForm(false)} style={{ background: "none", border: "none", color: "#8FA6BC", cursor: "pointer" }}><X size={16} /></button>
+              </div>
 
-            <label style={labelStyle}>
-              Nome da obra
-              <input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} style={inputStyle} placeholder="Ex: Reforma Residencial - Cliente X" />
-            </label>
-            <label style={labelStyle}>
-              Cliente
-              <input value={form.cliente} onChange={(e) => setForm({ ...form, cliente: e.target.value })} style={inputStyle} placeholder="Nome do cliente" />
-            </label>
-            <label style={labelStyle}>
-              Endereço
-              <input value={form.endereco} onChange={(e) => setForm({ ...form, endereco: e.target.value })} style={inputStyle} placeholder="Endereço da obra" />
-            </label>
-            <div style={{ display: "flex", gap: "8px" }}>
-              <label style={{ ...labelStyle, flex: 1 }}>
-                Início
-                <input type="date" value={form.dataInicio} onChange={(e) => setForm({ ...form, dataInicio: e.target.value })} style={inputStyle} />
+              <label style={labelStyle}>
+                Nome da obra
+                <input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} style={inputStyle} placeholder="Ex: Reforma Residencial - Cliente X" />
               </label>
-              <label style={{ ...labelStyle, flex: 1 }}>
-                Prazo de entrega
-                <input type="date" value={form.prazoEntrega} onChange={(e) => setForm({ ...form, prazoEntrega: e.target.value })} style={inputStyle} />
+              <label style={labelStyle}>
+                Cliente
+                <input value={form.cliente} onChange={(e) => setForm({ ...form, cliente: e.target.value })} style={inputStyle} placeholder="Nome do cliente" />
               </label>
-            </div>
+              <label style={labelStyle}>
+                Endereço
+                <input value={form.endereco} onChange={(e) => setForm({ ...form, endereco: e.target.value })} style={inputStyle} placeholder="Endereço da obra" />
+              </label>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <label style={{ ...labelStyle, flex: 1 }}>
+                  Início
+                  <input type="date" value={form.dataInicio} onChange={(e) => setForm({ ...form, dataInicio: e.target.value })} style={inputStyle} />
+                </label>
+                <label style={{ ...labelStyle, flex: 1 }}>
+                  Prazo de entrega
+                  <input type="date" value={form.prazoEntrega} onChange={(e) => setForm({ ...form, prazoEntrega: e.target.value })} style={inputStyle} />
+                </label>
+              </div>
 
-            <button onClick={salvar} style={{ ...primaryBtn, width: "100%", justifyContent: "center", marginTop: "8px" }}>
-              Salvar
-            </button>
-          </div>
-        </div>
-      )}
+              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={salvar} style={{ ...primaryBtn, width: "100%", justifyContent: "center", marginTop: "8px" }}>
+                Salvar
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {obraAssinatura && (
-        <AssinaturaDigital obra={obras.find((o) => o.id === obraAssinatura.id) || obraAssinatura} onClose={() => setObraAssinatura(null)} />
-      )}
+      <AnimatePresence>
+        {obraAssinatura && (
+          <AssinaturaDigital obra={obras.find((o) => o.id === obraAssinatura.id) || obraAssinatura} onClose={() => setObraAssinatura(null)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
