@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Plus, Trash2, X, Pencil, Calendar, CheckCircle2, Circle, Cloud, Users2, FileSignature } from "lucide-react";
 import { useAppData } from "../context/AppData.jsx";
 import AssinaturaDigital from "./AssinaturaDigital.jsx";
+import Etapasobra from "./Etapasobra.jsx";
 
 const ETAPAS_PADRAO = ["Fundação", "Alvenaria", "Cobertura", "Instalações", "Acabamento", "Entrega"];
 const CLIMA_OPCOES = ["Ensolarado", "Nublado", "Chuvoso", "Parcialmente nublado"];
@@ -90,6 +91,11 @@ export default function GestaoObra() {
         <button onClick={openNew} style={primaryBtn}>
           <Plus size={14} /> Nova obra
         </button>
+      </div>
+
+      {/* Seção de destaque com scroll horizontal */}
+      <div style={{ marginBottom: "20px" }}>
+        <Etapasobra />
       </div>
 
       {obras.length === 0 && (
