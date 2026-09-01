@@ -1,0 +1,144 @@
+.etapas-pinwrap {
+  position: relative;
+  height: 500vh; /* 5 panels x 100vh */
+  background: #14181c;
+  color: #e7e2d5;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.etapas-pininner {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.etapas-track {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+}
+
+.etapas-panel {
+  width: 100vw;
+  height: 100%;
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 0 60px;
+  gap: 40px;
+}
+
+.etapas-num {
+  font-family: 'Oswald', sans-serif;
+  font-size: 8rem;
+  font-weight: 700;
+  color: transparent;
+  -webkit-text-stroke: 1.5px #545b62;
+  line-height: 1;
+}
+
+.etapas-copy {
+  max-width: 34ch;
+}
+
+.etapas-eyebrow {
+  color: #e8a93a;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+
+.etapas-copy h2 {
+  font-family: 'Oswald', sans-serif;
+  font-size: clamp(1.8rem, 3.2vw, 2.8rem);
+  font-weight: 600;
+  margin: 0 0 16px;
+}
+
+.etapas-copy p {
+  color: #d7d1c1;
+  line-height: 1.65;
+  font-size: 0.98rem;
+  margin: 0;
+}
+
+.etapas-progress {
+  position: fixed;
+  right: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 40;
+}
+
+.etapas-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #545b62;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.etapas-dot.active {
+  background: #e8a93a;
+  transform: scale(1.6);
+}
+
+/* Fallback for mobile / reduced motion: stacked, no scroll-jacking */
+.etapas-static.etapas-pinwrap {
+  height: auto;
+}
+
+.etapas-static .etapas-pininner {
+  position: static;
+  height: auto;
+  overflow: visible;
+  display: block;
+}
+
+.etapas-static .etapas-track {
+  flex-direction: column;
+  transform: none !important;
+}
+
+.etapas-static .etapas-panel {
+  width: 100vw;
+  height: auto;
+  grid-template-columns: 1fr;
+  padding: 60px 24px;
+}
+
+@media (max-width: 760px) {
+  .etapas-pinwrap {
+    height: auto;
+  }
+  .etapas-pininner {
+    position: static;
+    height: auto;
+    overflow: visible;
+    display: block;
+  }
+  .etapas-track {
+    flex-direction: column;
+    transform: none !important;
+  }
+  .etapas-panel {
+    width: 100vw;
+    height: auto;
+    grid-template-columns: 1fr;
+    padding: 60px 24px;
+  }
+  .etapas-num {
+    font-size: 5rem;
+  }
+  .etapas-progress {
+    display: none;
+  }
+}
