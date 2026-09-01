@@ -1,111 +1,194 @@
-import { useEffect, useRef, useState } from 'react';
-import './Etapasobra.css';
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { ChevronLeft, ChevronRight, Layers, Blocks, Home, Zap, Paintbrush, PartyPopper, Clock, User } from "lucide-react";
+import "./Etapasobra.css";
 
 const ETAPAS = [
   {
-    num: '01',
-    titulo: 'Fundação',
-    texto:
-      'Sondagem do terreno, escavação e lançamento das bases. O diário de obra registra cada camada de concreto, com fotos e assinatura do mestre de obra.',
+    numero: "01",
+    titulo: "Fundação",
+    descricao: "Sondagem do terreno, escavação e lançamento das bases. O diário de obra registra cada camada de concreto, com fotos e assinatura do mestre de obra.",
+    icon: Layers,
+    duracao: "7–15 dias",
+    responsavel: "Mestre de obra",
   },
   {
-    num: '02',
-    titulo: 'Estrutura',
-    texto:
-      'Pilares, vigas e laje ganham forma. A calculadora de traço de concreto e armação fica à mão da equipe, direto no canteiro.',
+    numero: "02",
+    titulo: "Alvenaria",
+    descricao: "Levantamento das paredes conforme o projeto. Prumo e nível conferidos etapa por etapa, com registro fotográfico diário no aplicativo.",
+    icon: Blocks,
+    duracao: "15–25 dias",
+    responsavel: "Equipe de pedreiros",
   },
   {
-    num: '03',
-    titulo: 'Alvenaria',
-    texto:
-      'Levantamento das paredes com controle de consumo de tijolos e blocos por ambiente, comparado ao orçamento previsto.',
+    numero: "03",
+    titulo: "Cobertura",
+    descricao: "Estrutura do telhado, impermeabilização e calhas. Etapa crítica contra infiltração — vistoriada antes do fechamento total.",
+    icon: Home,
+    duracao: "5–10 dias",
+    responsavel: "Equipe especializada",
   },
   {
-    num: '04',
-    titulo: 'Instalações',
-    texto:
-      'Elétrica, hidráulica e o editor de ambientes para posicionar cada ponto — com preview 3D e orçamento atualizado na hora.',
+    numero: "04",
+    titulo: "Instalações",
+    descricao: "Redes elétrica, hidráulica e de gás embutidas antes do acabamento. Testes de pressão e continuidade documentados no sistema.",
+    icon: Zap,
+    duracao: "10–20 dias",
+    responsavel: "Eletricista / Encanador",
   },
   {
-    num: '05',
-    titulo: 'Acabamento & Entrega',
-    texto:
-      'Pintura, revisão final e assinatura digital do contrato de entrega. O cliente acompanha tudo pelo próprio login.',
+    numero: "05",
+    titulo: "Acabamento",
+    descricao: "Reboco, pintura, revestimentos e esquadrias. É a etapa mais visível ao cliente — fotos comparativas de antes e depois no diário.",
+    icon: Paintbrush,
+    duracao: "20–30 dias",
+    responsavel: "Equipe de acabamento",
+  },
+  {
+    numero: "06",
+    titulo: "Entrega",
+    descricao: "Vistoria final, checklist de pendências e assinatura digital do contrato de entrega junto ao cliente final.",
+    icon: PartyPopper,
+    duracao: "1–2 dias",
+    responsavel: "Administrador",
   },
 ];
 
-export default function Etapasobra({ etapas = ETAPAS }) {
-  const wrapRef = useRef(null);
+export default function Etapasobra() {
   const trackRef = useRef(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [skipAnimation, setSkipAnimation] = useState(false);
+  const cardRefs = useRef([]);
+  const [active, setActive] = useState(0);
+  const dragState = useRef({ isDown: false, startX: 0, startScroll: 0, moved: false });
 
   useEffect(() => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isMobile = window.matchMedia('(max-width: 760px)').matches;
-    if (reduce || isMobile) {
-      setSkipAnimation(true);
-      return;
-    }
+    const track = trackRef.current;
+    if (!track) return;
 
-    const handleScroll = () => {
-      const wrap = wrapRef.current;
-      const track = trackRef.current;
-      if (!wrap || !track) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.55) {
+            const idx = Number(entry.target.dataset.index);
+            setActive(idx);
+          }
+        });
+      },
+      { root: track, threshold: [0.55, 0.75, 0.9] }
+    );
 
-      const rect = wrap.getBoundingClientRect();
-      const wrapTop = rect.top + window.scrollY;
-      const wrapHeight = wrap.offsetHeight;
-      const viewportH = window.innerHeight;
-      const scrollable = wrapHeight - viewportH;
+    cardRefs.current.forEach((el) => el && observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
-      let progress = (window.scrollY - wrapTop) / scrollable;
-      progress = Math.max(0, Math.min(1, progress));
+  const scrollToIndex = useCallback((idx) => {
+    const clamped = Math.max(0, Math.min(ETAPAS.length - 1, idx));
+    cardRefs.current[clamped]?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  }, []);
 
-      const maxTranslate = (etapas.length - 1) * window.innerWidth;
-      track.style.transform = `translateX(-${progress * maxTranslate}px)`;
-
-      const index = Math.min(etapas.length - 1, Math.floor(progress * etapas.length));
-      setActiveIndex(index);
+  const onPointerDown = (e) => {
+    const track = trackRef.current;
+    if (!track) return;
+    dragState.current = {
+      isDown: true,
+      startX: (e.touches ? e.touches[0].clientX : e.clientX),
+      startScroll: track.scrollLeft,
+      moved: false,
     };
+  };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll);
-    handleScroll();
+  const onPointerMove = (e) => {
+    const track = trackRef.current;
+    if (!track || !dragState.current.isDown) return;
+    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    const delta = x - dragState.current.startX;
+    if (Math.abs(delta) > 4) dragState.current.moved = true;
+    track.scrollLeft = dragState.current.startScroll - delta;
+  };
 
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-    };
-  }, [etapas.length]);
+  const endDrag = () => {
+    dragState.current.isDown = false;
+  };
+
+  const progressPct = (active / (ETAPAS.length - 1)) * 100;
 
   return (
-    <div className={`etapas-pinwrap ${skipAnimation ? 'etapas-static' : ''}`} ref={wrapRef}>
-      <div className="etapas-pininner">
-        <div className="etapas-track" ref={trackRef}>
-          {etapas.map((etapa) => (
-            <div className="etapas-panel" key={etapa.num}>
-              <div className="etapas-num">{etapa.num}</div>
-              <div className="etapas-copy">
-                <div className="etapas-eyebrow">ETAPA {etapa.num}</div>
-                <h2>{etapa.titulo}</h2>
-                <p>{etapa.texto}</p>
-              </div>
-            </div>
+    <div className="eo-wrap">
+      <div className="eo-blob eo-blob--a" />
+      <div className="eo-blob eo-blob--b" />
+
+      <div className="eo-header">
+        <div>
+          <div className="eo-eyebrow">Linha do tempo</div>
+          <div className="eo-title">Etapas da Obra</div>
+        </div>
+        <div className="eo-arrows">
+          <button className="eo-arrow-btn" onClick={() => scrollToIndex(active - 1)} disabled={active === 0} aria-label="Etapa anterior">
+            <ChevronLeft size={16} />
+          </button>
+          <button className="eo-arrow-btn" onClick={() => scrollToIndex(active + 1)} disabled={active === ETAPAS.length - 1} aria-label="Próxima etapa">
+            <ChevronRight size={16} />
+          </button>
+        </div>
+      </div>
+
+      <div className="eo-nav">
+        <div className="eo-nav-track">
+          <div className="eo-nav-fill" style={{ width: `${progressPct}%` }} />
+        </div>
+        <div className="eo-nav-dots">
+          {ETAPAS.map((etapa, idx) => (
+            <button
+              key={etapa.numero}
+              className={"eo-nav-dot" + (idx === active ? " is-active" : "")}
+              onClick={() => scrollToIndex(idx)}
+            >
+              {etapa.numero}
+            </button>
           ))}
         </div>
       </div>
 
-      {!skipAnimation && (
-        <div className="etapas-progress">
-          {etapas.map((etapa, i) => (
+      <div
+        className="eo-track"
+        ref={trackRef}
+        onMouseDown={onPointerDown}
+        onMouseMove={onPointerMove}
+        onMouseUp={endDrag}
+        onMouseLeave={endDrag}
+        onTouchStart={onPointerDown}
+        onTouchMove={onPointerMove}
+        onTouchEnd={endDrag}
+      >
+        {ETAPAS.map((etapa, idx) => {
+          const Icon = etapa.icon;
+          const isActive = idx === active;
+          return (
             <div
-              key={etapa.num}
-              className={`etapas-dot ${i === activeIndex ? 'active' : ''}`}
-            />
-          ))}
-        </div>
-      )}
+              key={etapa.numero}
+              data-index={idx}
+              ref={(el) => (cardRefs.current[idx] = el)}
+              className={"eo-card" + (isActive ? " is-active" : "")}
+              onClick={() => {
+                if (!dragState.current.moved) scrollToIndex(idx);
+              }}
+            >
+              <div className="eo-card-number">{etapa.numero}</div>
+
+              <div className="eo-icon-badge">
+                <Icon size={22} />
+              </div>
+
+              <div className="eo-card-eyebrow">ETAPA {etapa.numero}</div>
+              <div className="eo-card-title">{etapa.titulo}</div>
+              <p className="eo-card-desc">{etapa.descricao}</p>
+
+              <div className="eo-tags">
+                <span className="eo-tag"><Clock size={11} /> {etapa.duracao}</span>
+                <span className="eo-tag"><User size={11} /> {etapa.responsavel}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
