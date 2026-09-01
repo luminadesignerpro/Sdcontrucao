@@ -39,6 +39,24 @@ const CATEGORY_LABELS = {
 
 let nextId = 1;
 
+function useContainerWidth() {
+  const ref = useRef(null);
+  const [width, setWidth] = useState(720);
+  React.useEffect(() => {
+    if (!ref.current) return;
+    const el = ref.current;
+    const obs = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setWidth(entry.contentRect.width);
+      }
+    });
+    obs.observe(el);
+    setWidth(el.getBoundingClientRect().width);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, width];
+}
+
 export default function EditorAmbientes() {
   const [room, setRoom] = useState({ w: 400, h: 300, shape: "retangulo", cutW: 120, cutH: 100 });
   const [items, setItems] = useState([]);
@@ -49,10 +67,12 @@ export default function EditorAmbientes() {
   const [view3d, setView3d] = useState(false);
   const canvasRef = useRef(null);
   const dragState = useRef(null);
+  const [wrapperRef, wrapperWidth] = useContainerWidth();
+  const isMobile = wrapperWidth < 780;
 
   const PADDING = 40;
-  const canvasW = 720;
-  const canvasH = 480;
+  const canvasW = isMobile ? Math.max(280, wrapperWidth - 32) : 720;
+  const canvasH = isMobile ? Math.round(canvasW * 0.7) : 480;
   const scale = Math.min(
     (canvasW - PADDING * 2) / room.w,
     (canvasH - PADDING * 2) / room.h
@@ -170,27 +190,33 @@ export default function EditorAmbientes() {
 
   return (
     <div
+      ref={wrapperRef}
       style={{
         display: "flex",
+        flexDirection: isMobile ? "column" : "row",
         fontFamily: "'Inter', system-ui, sans-serif",
         background: "#0F1B2B",
         color: "#E8EDF2",
-        minHeight: "680px",
+        minHeight: isMobile ? "auto" : "680px",
         borderRadius: "12px",
         overflow: "hidden",
         border: "1px solid #1E3350",
+        width: "100%",
+        position: "relative",
       }}
     >
       <div
         style={{
-          width: "240px",
-          borderRight: "1px solid #1E3350",
+          width: isMobile ? "100%" : "240px",
+          borderRight: isMobile ? "none" : "1px solid #1E3350",
+          borderBottom: isMobile ? "1px solid #1E3350" : "none",
           padding: "16px",
           background: "#0B1522",
           display: "flex",
           flexDirection: "column",
           gap: "10px",
           overflowY: "auto",
+          maxHeight: isMobile ? "260px" : "none",
         }}
       >
         <div style={{ marginBottom: "4px" }}>
@@ -314,7 +340,7 @@ export default function EditorAmbientes() {
             <Printer size={13} /> Exportar
           </button>
         </div>
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "10px 20px" }}>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: isMobile ? "10px" : "10px 20px", overflowX: "auto" }}>
           {!view3d ? (
             <svg ref={canvasRef} width={canvasW} height={canvasH} onMouseDown={() => setSelectedId(null)} style={{ background: "#0F1B2B", borderRadius: "8px" }}>
               <defs>
@@ -405,7 +431,7 @@ export default function EditorAmbientes() {
         </div>
       </div>
 
-      <div style={{ width: "230px", borderLeft: "1px solid #1E3350", padding: "16px", background: "#0B1522", display: "flex", flexDirection: "column" }}>
+      <div style={{ width: isMobile ? "100%" : "230px", borderLeft: isMobile ? "none" : "1px solid #1E3350", borderTop: isMobile ? "1px solid #1E3350" : "none", padding: "16px", background: "#0B1522", display: "flex", flexDirection: "column" }}>
         <div style={{ fontSize: "11px", letterSpacing: "0.08em", color: "#5B7A99", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace", marginBottom: "8px" }}>
           Propriedades
         </div>
