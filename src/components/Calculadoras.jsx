@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Calculator, Layers, PaintBucket } from "lucide-react";
 
 // Consumo por m³ de traço (valores de referência usuais em obra)
@@ -28,25 +29,51 @@ export default function Calculadoras() {
 
   return (
     <div style={wrapperStyle}>
-      <div style={{ marginBottom: "18px" }}>
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} style={{ marginBottom: "18px" }}>
         <div style={eyebrow}>Campo</div>
         <div style={{ fontSize: "18px", fontWeight: 600 }}>Calculadoras de Obra</div>
-      </div>
+      </motion.div>
 
       <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "18px" }}>
         {TABS.map((t) => {
           const Icon = t.icon;
+          const isActive = tab === t.id;
           return (
-            <button key={t.id} onClick={() => setTab(t.id)} style={tabBtn(tab === t.id)}>
-              <Icon size={14} /> {t.label}
-            </button>
+            <motion.button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              whileHover={!isActive ? { y: -2 } : {}}
+              whileTap={{ scale: 0.96 }}
+              style={{ ...tabBtnBase(isActive), position: "relative", overflow: "hidden" }}
+            >
+              {isActive && (
+                <motion.span
+                  layoutId="calc-tab-pill"
+                  transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                  style={{ position: "absolute", inset: 0, background: "#F2A93B22", zIndex: 0 }}
+                />
+              )}
+              <span style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: "6px" }}>
+                <Icon size={14} /> {t.label}
+              </span>
+            </motion.button>
           );
         })}
       </div>
 
-      {tab === "concreto" && <CalcConcreto />}
-      {tab === "tijolos" && <CalcTijolos />}
-      {tab === "tinta" && <CalcTinta />}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={tab}
+          initial={{ opacity: 0, x: 12 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -12 }}
+          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {tab === "concreto" && <CalcConcreto />}
+          {tab === "tijolos" && <CalcTijolos />}
+          {tab === "tinta" && <CalcTinta />}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
@@ -80,9 +107,9 @@ function CalcConcreto() {
 
       <div style={resultBox}>
         <div style={{ ...eyebrow, marginBottom: "10px" }}>Você vai precisar de</div>
-        <ResultRow label="Cimento" value={`${resultado.cimento} saco(s) de 50kg`} />
-        <ResultRow label="Areia" value={`${resultado.areia} m³`} />
-        {resultado.brita !== null && <ResultRow label="Brita" value={`${resultado.brita} m³`} />}
+        <ResultRow rkey={`cimento-${resultado.cimento}`} label="Cimento" value={`${resultado.cimento} saco(s) de 50kg`} />
+        <ResultRow rkey={`areia-${resultado.areia}`} label="Areia" value={`${resultado.areia} m³`} />
+        {resultado.brita !== null && <ResultRow rkey={`brita-${resultado.brita}`} label="Brita" value={`${resultado.brita} m³`} />}
         <div style={{ fontSize: "10.5px", color: "#5B7A99", marginTop: "8px" }}>
           Valores de referência para traço padrão. Pode variar conforme umidade do material e tipo de cimento.
         </div>
@@ -130,8 +157,8 @@ function CalcTijolos() {
 
       <div style={resultBox}>
         <div style={{ ...eyebrow, marginBottom: "10px" }}>Você vai precisar de</div>
-        <ResultRow label="Área da parede" value={`${resultado.area} m²`} />
-        <ResultRow label="Quantidade" value={`${resultado.quantidade} unidades`} destaque />
+        <ResultRow rkey={`area-${resultado.area}`} label="Área da parede" value={`${resultado.area} m²`} />
+        <ResultRow rkey={`qtd-${resultado.quantidade}`} label="Quantidade" value={`${resultado.quantidade} unidades`} destaque />
         <div style={{ fontSize: "10.5px", color: "#5B7A99", marginTop: "8px" }}>
           Já considera a margem de perda informada. Desconte vãos de porta/janela da área se houver.
         </div>
@@ -173,8 +200,8 @@ function CalcTinta() {
 
       <div style={resultBox}>
         <div style={{ ...eyebrow, marginBottom: "10px" }}>Você vai precisar de</div>
-        <ResultRow label="Total de tinta" value={`${resultado.litros} litros`} destaque />
-        <ResultRow label="Equivalente em latas de 18L" value={`${resultado.latas18} lata(s)`} />
+        <ResultRow rkey={`litros-${resultado.litros}`} label="Total de tinta" value={`${resultado.litros} litros`} destaque />
+        <ResultRow rkey={`latas-${resultado.latas18}`} label="Equivalente em latas de 18L" value={`${resultado.latas18} lata(s)`} />
         <div style={{ fontSize: "10.5px", color: "#5B7A99", marginTop: "8px" }}>
           O rendimento padrão varia por marca/tipo de tinta — confira na lata do produto e ajuste aqui.
         </div>
@@ -183,11 +210,21 @@ function CalcTinta() {
   );
 }
 
-function ResultRow({ label, value, destaque }) {
+function ResultRow({ label, value, destaque, rkey }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #1E3350" }}>
       <span style={{ fontSize: "12.5px", color: "#8FA6BC" }}>{label}</span>
-      <span style={{ fontSize: destaque ? "16px" : "13px", fontWeight: 700, color: destaque ? "#F2A93B" : "#E8EDF2", fontFamily: "'JetBrains Mono', monospace" }}>{value}</span>
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={rkey}
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          style={{ fontSize: destaque ? "16px" : "13px", fontWeight: 700, color: destaque ? "#F2A93B" : "#E8EDF2", fontFamily: "'JetBrains Mono', monospace" }}
+        >
+          {value}
+        </motion.span>
+      </AnimatePresence>
     </div>
   );
 }
@@ -198,7 +235,7 @@ const inputStyle = { width: "100%", marginTop: "4px", padding: "9px 10px", backg
 const labelStyle = { display: "block", fontSize: "12px", color: "#8FA6BC", marginBottom: "12px" };
 const resultBox = { background: "#0B1522", border: "1px solid #1E3350", borderRadius: "10px", padding: "14px", marginTop: "8px" };
 
-function tabBtn(active) {
+function tabBtnBase(active) {
   return {
     display: "flex",
     alignItems: "center",
@@ -207,7 +244,7 @@ function tabBtn(active) {
     fontSize: "12.5px",
     borderRadius: "8px",
     border: "1px solid " + (active ? "#F2A93B" : "#1E3350"),
-    background: active ? "#F2A93B22" : "#132339",
+    background: active ? "transparent" : "#132339",
     color: active ? "#F2A93B" : "#8FA6BC",
     cursor: "pointer",
   };
