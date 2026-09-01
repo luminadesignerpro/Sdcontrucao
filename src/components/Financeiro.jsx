@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Trash2, X, TrendingUp, TrendingDown, Wallet, Building2 } from "lucide-react";
 import { useAppData } from "../context/AppData.jsx";
 
@@ -72,36 +73,76 @@ export default function Financeiro() {
 
   return (
     <div style={wrapperStyle}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px", marginBottom: "18px" }}>
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px", marginBottom: "18px" }}
+      >
         <div>
           <div style={eyebrow}>Financeiro</div>
           <div style={{ fontSize: "18px", fontWeight: 600 }}>Contas e Fluxo de Caixa</div>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
-          <button onClick={() => openNew("receita")} style={{ ...primaryBtn, borderColor: "#4ADE80", color: "#4ADE80", background: "#4ADE8022" }}>
+          <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }} onClick={() => openNew("receita")} style={{ ...primaryBtn, borderColor: "#4ADE80", color: "#4ADE80", background: "#4ADE8022" }}>
             <TrendingUp size={14} /> Receita
-          </button>
-          <button onClick={() => openNew("despesa")} style={{ ...primaryBtn, borderColor: "#F2A0A5", color: "#F2A0A5", background: "#F2A0A522" }}>
+          </motion.button>
+          <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }} onClick={() => openNew("despesa")} style={{ ...primaryBtn, borderColor: "#F2A0A5", color: "#F2A0A5", background: "#F2A0A522" }}>
             <TrendingDown size={14} /> Despesa
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Cards de totais */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "10px", marginBottom: "18px" }}>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.05 }}
+        style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "10px", marginBottom: "18px" }}
+      >
         <div style={cardStyle}>
           <div style={eyebrow}>Receitas</div>
-          <div style={{ fontSize: "18px", fontWeight: 700, color: "#4ADE80", fontFamily: "'JetBrains Mono', monospace" }}>{fmt(totais.receitas)}</div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={totais.receitas}
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              style={{ fontSize: "18px", fontWeight: 700, color: "#4ADE80", fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              {fmt(totais.receitas)}
+            </motion.div>
+          </AnimatePresence>
         </div>
         <div style={cardStyle}>
           <div style={eyebrow}>Despesas</div>
-          <div style={{ fontSize: "18px", fontWeight: 700, color: "#F2A0A5", fontFamily: "'JetBrains Mono', monospace" }}>{fmt(totais.despesas)}</div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={totais.despesas}
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              style={{ fontSize: "18px", fontWeight: 700, color: "#F2A0A5", fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              {fmt(totais.despesas)}
+            </motion.div>
+          </AnimatePresence>
         </div>
         <div style={cardStyle}>
           <div style={eyebrow}>Saldo</div>
-          <div style={{ fontSize: "18px", fontWeight: 700, color: totais.saldo >= 0 ? "#F2A93B" : "#F2A0A5", fontFamily: "'JetBrains Mono', monospace" }}>{fmt(totais.saldo)}</div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={totais.saldo}
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              style={{ fontSize: "18px", fontWeight: 700, color: totais.saldo >= 0 ? "#F2A93B" : "#F2A0A5", fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              {fmt(totais.saldo)}
+            </motion.div>
+          </AnimatePresence>
         </div>
-      </div>
+      </motion.div>
 
       {/* Filtro por obra + criar obra rápida */}
       <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "18px", alignItems: "center" }}>
@@ -117,7 +158,7 @@ export default function Financeiro() {
           placeholder="Nova obra (ex: Reforma Cliente X)"
           style={{ ...inputStyle, marginTop: 0, flex: 1, minWidth: "160px" }}
         />
-        <button onClick={criarObraRapida} style={secondaryBtn}><Plus size={13} /> Criar obra</button>
+        <motion.button whileTap={{ scale: 0.95 }} onClick={criarObraRapida} style={secondaryBtn}><Plus size={13} /> Criar obra</motion.button>
       </div>
 
       {/* Pagamento rápido de diária */}
@@ -126,9 +167,9 @@ export default function Financeiro() {
           <div style={{ ...eyebrow, marginBottom: "10px" }}>Pagar diária/empreitada rapidamente</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
             {funcionarios.filter((f) => f.diaria).map((f) => (
-              <button key={f.id} onClick={() => pagarDiaria(f)} style={secondaryBtn}>
+              <motion.button key={f.id} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.95 }} onClick={() => pagarDiaria(f)} style={secondaryBtn}>
                 <Wallet size={13} /> {f.nome} — {fmt(f.diaria)}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
@@ -142,70 +183,96 @@ export default function Financeiro() {
       )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        {lancamentosFiltrados
-          .slice()
-          .sort((a, b) => (a.data < b.data ? 1 : -1))
-          .map((l) => (
-            <div key={l.id} style={rowStyle}>
-              <div>
-                <div style={{ fontSize: "13.5px", fontWeight: 600 }}>{l.descricao}</div>
-                <div style={{ fontSize: "11.5px", color: "#5B7A99" }}>{l.categoria} · {obraNome(l.obraId)} · {l.data}</div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: l.tipo === "receita" ? "#4ADE80" : "#F2A0A5" }}>
-                  {l.tipo === "receita" ? "+" : "-"} {fmt(l.valor)}
+        <AnimatePresence initial={false}>
+          {lancamentosFiltrados
+            .slice()
+            .sort((a, b) => (a.data < b.data ? 1 : -1))
+            .map((l) => (
+              <motion.div
+                key={l.id}
+                layout
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 12 }}
+                transition={{ duration: 0.25 }}
+                style={rowStyle}
+              >
+                <div>
+                  <div style={{ fontSize: "13.5px", fontWeight: 600 }}>{l.descricao}</div>
+                  <div style={{ fontSize: "11.5px", color: "#5B7A99" }}>{l.categoria} · {obraNome(l.obraId)} · {l.data}</div>
                 </div>
-                <button onClick={() => remover(l.id)} style={{ ...iconBtn, borderColor: "#B0555A", color: "#F2A0A5" }}><Trash2 size={13} /></button>
-              </div>
-            </div>
-          ))}
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: l.tipo === "receita" ? "#4ADE80" : "#F2A0A5" }}>
+                    {l.tipo === "receita" ? "+" : "-"} {fmt(l.valor)}
+                  </div>
+                  <motion.button whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }} onClick={() => remover(l.id)} style={{ ...iconBtn, borderColor: "#B0555A", color: "#F2A0A5" }}><Trash2 size={13} /></motion.button>
+                </div>
+              </motion.div>
+            ))}
+        </AnimatePresence>
       </div>
 
-      {showForm && (
-        <div style={modalOverlay} onClick={() => setShowForm(false)}>
-          <div onClick={(e) => e.stopPropagation()} style={modalBox}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
-              <div style={{ fontSize: "14px", fontWeight: 600 }}>{form.tipo === "receita" ? "Nova receita" : "Nova despesa"}</div>
-              <button onClick={() => setShowForm(false)} style={{ background: "none", border: "none", color: "#8FA6BC", cursor: "pointer" }}><X size={16} /></button>
-            </div>
+      <AnimatePresence>
+        {showForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            style={modalOverlay}
+            onClick={() => setShowForm(false)}
+          >
+            <motion.div
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.92, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 16 }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              style={modalBox}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+                <div style={{ fontSize: "14px", fontWeight: 600 }}>{form.tipo === "receita" ? "Nova receita" : "Nova despesa"}</div>
+                <button onClick={() => setShowForm(false)} style={{ background: "none", border: "none", color: "#8FA6BC", cursor: "pointer" }}><X size={16} /></button>
+              </div>
 
-            <label style={labelStyle}>
-              Descrição
-              <input value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} style={inputStyle} placeholder="Ex: Compra de cimento" />
-            </label>
-
-            <div style={{ display: "flex", gap: "8px" }}>
-              <label style={{ ...labelStyle, flex: 1 }}>
-                Valor (R$)
-                <input type="number" value={form.valor} onChange={(e) => setForm({ ...form, valor: e.target.value })} style={inputStyle} placeholder="0" />
+              <label style={labelStyle}>
+                Descrição
+                <input value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} style={inputStyle} placeholder="Ex: Compra de cimento" />
               </label>
-              <label style={{ ...labelStyle, flex: 1 }}>
-                Data
-                <input type="date" value={form.data} onChange={(e) => setForm({ ...form, data: e.target.value })} style={inputStyle} />
+
+              <div style={{ display: "flex", gap: "8px" }}>
+                <label style={{ ...labelStyle, flex: 1 }}>
+                  Valor (R$)
+                  <input type="number" value={form.valor} onChange={(e) => setForm({ ...form, valor: e.target.value })} style={inputStyle} placeholder="0" />
+                </label>
+                <label style={{ ...labelStyle, flex: 1 }}>
+                  Data
+                  <input type="date" value={form.data} onChange={(e) => setForm({ ...form, data: e.target.value })} style={inputStyle} />
+                </label>
+              </div>
+
+              <label style={labelStyle}>
+                Categoria
+                <select value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} style={inputStyle}>
+                  {(form.tipo === "despesa" ? CATEGORIAS_DESPESA : CATEGORIAS_RECEITA).map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
               </label>
-            </div>
 
-            <label style={labelStyle}>
-              Categoria
-              <select value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} style={inputStyle}>
-                {(form.tipo === "despesa" ? CATEGORIAS_DESPESA : CATEGORIAS_RECEITA).map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </label>
+              <label style={labelStyle}>
+                Obra
+                <select value={form.obraId} onChange={(e) => setForm({ ...form, obraId: e.target.value })} style={inputStyle}>
+                  <option value="">Nenhuma / geral</option>
+                  {obras.map((o) => <option key={o.id} value={o.id}>{o.nome}</option>)}
+                </select>
+              </label>
 
-            <label style={labelStyle}>
-              Obra
-              <select value={form.obraId} onChange={(e) => setForm({ ...form, obraId: e.target.value })} style={inputStyle}>
-                <option value="">Nenhuma / geral</option>
-                {obras.map((o) => <option key={o.id} value={o.id}>{o.nome}</option>)}
-              </select>
-            </label>
-
-            <button onClick={salvar} style={{ ...primaryBtn, width: "100%", justifyContent: "center", marginTop: "8px" }}>
-              Salvar
-            </button>
-          </div>
-        </div>
-      )}
+              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={salvar} style={{ ...primaryBtn, width: "100%", justifyContent: "center", marginTop: "8px" }}>
+                Salvar
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
