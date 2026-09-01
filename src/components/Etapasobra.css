@@ -1,144 +1,274 @@
-.etapas-pinwrap {
+.eo-wrap {
   position: relative;
-  height: 500vh; /* 5 panels x 100vh */
-  background: #14181c;
-  color: #e7e2d5;
-  font-family: 'IBM Plex Sans', sans-serif;
-}
-
-.etapas-pininner {
-  position: sticky;
-  top: 0;
-  height: 100vh;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: linear-gradient(180deg, #0B1522 0%, #0F1B2B 100%);
+  border: 1px solid #1E3350;
+  border-radius: 14px;
+  padding: 20px 0 22px;
   overflow: hidden;
+  isolation: isolate;
+}
+
+/* --- fundo com blobs animados --- */
+.eo-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.16;
+  pointer-events: none;
+  z-index: 0;
+}
+.eo-blob--a {
+  width: 260px;
+  height: 260px;
+  background: #F2A93B;
+  top: -80px;
+  left: -60px;
+  animation: eo-float-a 14s ease-in-out infinite;
+}
+.eo-blob--b {
+  width: 220px;
+  height: 220px;
+  background: #3B8AF2;
+  bottom: -90px;
+  right: -40px;
+  animation: eo-float-b 16s ease-in-out infinite;
+}
+@keyframes eo-float-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, 30px) scale(1.15); }
+}
+@keyframes eo-float-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-30px, -20px) scale(1.1); }
+}
+
+/* --- header --- */
+.eo-header {
+  position: relative;
+  z-index: 1;
   display: flex;
+  justify-content: space-between;
   align-items: center;
+  padding: 0 20px;
+  margin-bottom: 14px;
 }
-
-.etapas-track {
-  display: flex;
-  height: 100%;
-  will-change: transform;
+.eo-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #5B7A99;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
 }
-
-.etapas-panel {
-  width: 100vw;
-  height: 100%;
-  flex-shrink: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  padding: 0 60px;
-  gap: 40px;
-}
-
-.etapas-num {
-  font-family: 'Oswald', sans-serif;
-  font-size: 8rem;
-  font-weight: 700;
-  color: transparent;
-  -webkit-text-stroke: 1.5px #545b62;
-  line-height: 1;
-}
-
-.etapas-copy {
-  max-width: 34ch;
-}
-
-.etapas-eyebrow {
-  color: #e8a93a;
-  font-size: 0.8rem;
+.eo-title {
+  font-size: 17px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  color: #E8EDF2;
+  margin-top: 2px;
+}
+.eo-arrows {
+  display: flex;
+  gap: 8px;
+}
+.eo-arrow-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #132339;
+  border: 1px solid #1E3350;
+  color: #E8EDF2;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.eo-arrow-btn:hover:not(:disabled) {
+  border-color: #F2A93B;
+  color: #F2A93B;
+  transform: translateY(-1px);
+}
+.eo-arrow-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* --- navegação numerada + barra de progresso --- */
+.eo-nav {
+  position: relative;
+  z-index: 1;
+  padding: 0 20px;
+  margin-bottom: 16px;
+}
+.eo-nav-track {
+  height: 3px;
+  background: #16283F;
+  border-radius: 3px;
+  overflow: hidden;
   margin-bottom: 10px;
 }
-
-.etapas-copy h2 {
-  font-family: 'Oswald', sans-serif;
-  font-size: clamp(1.8rem, 3.2vw, 2.8rem);
+.eo-nav-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #F2A93B, #F2C97B);
+  border-radius: 3px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.eo-nav-dots {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.eo-nav-dot {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: #132339;
+  border: 1px solid #1E3350;
+  color: #8FA6BC;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.eo-nav-dot:hover {
+  border-color: #F2A93B88;
+  color: #E8EDF2;
+}
+.eo-nav-dot.is-active {
+  background: #F2A93B22;
+  border-color: #F2A93B;
+  color: #F2A93B;
   font-weight: 600;
+}
+
+/* --- track de scroll horizontal --- */
+.eo-track {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 4px 20px 8px;
+  cursor: grab;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  user-select: none;
+}
+.eo-track:active {
+  cursor: grabbing;
+}
+.eo-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* --- card de etapa --- */
+.eo-card {
+  position: relative;
+  flex: 0 0 auto;
+  width: min(78vw, 300px);
+  min-height: 300px;
+  background: #0B1522;
+  border: 1px solid #1E3350;
+  border-radius: 12px;
+  padding: 22px 18px 18px;
+  scroll-snap-align: center;
+  overflow: hidden;
+  opacity: 0.55;
+  transform: scale(0.94);
+  transition: opacity 0.35s ease, transform 0.35s ease, border-color 0.35s ease;
+  cursor: pointer;
+}
+.eo-card.is-active {
+  opacity: 1;
+  transform: scale(1);
+  border-color: #F2A93B55;
+  box-shadow: 0 8px 28px -8px #000000aa;
+}
+
+.eo-card-number {
+  position: absolute;
+  top: -6px;
+  right: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 74px;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.5px #1E3350;
+  transition: -webkit-text-stroke 0.35s ease;
+  pointer-events: none;
+}
+.eo-card.is-active .eo-card-number {
+  -webkit-text-stroke: 1.5px #F2A93B55;
+}
+
+.eo-icon-badge {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #F2A93B18;
+  border: 1px solid #F2A93B44;
+  color: #F2A93B;
+  margin-bottom: 16px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+.eo-card:hover .eo-icon-badge {
+  transform: translateY(-4px) rotate(-6deg);
+  box-shadow: 0 6px 18px -4px #F2A93B55;
+}
+
+.eo-card-eyebrow {
+  position: relative;
+  z-index: 1;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: #F2A93B;
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 4px;
+}
+.eo-card-title {
+  position: relative;
+  z-index: 1;
+  font-size: 19px;
+  font-weight: 700;
+  color: #E8EDF2;
+  margin-bottom: 10px;
+}
+.eo-card-desc {
+  position: relative;
+  z-index: 1;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #8FA6BC;
   margin: 0 0 16px;
 }
 
-.etapas-copy p {
-  color: #d7d1c1;
-  line-height: 1.65;
-  font-size: 0.98rem;
-  margin: 0;
-}
-
-.etapas-progress {
-  position: fixed;
-  right: 32px;
-  top: 50%;
-  transform: translateY(-50%);
+.eo-tags {
+  position: relative;
+  z-index: 1;
   display: flex;
-  flex-direction: column;
-  gap: 14px;
-  z-index: 40;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.eo-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  color: #5B7A99;
+  background: #132339;
+  border: 1px solid #1E3350;
+  border-radius: 14px;
+  padding: 4px 9px;
 }
 
-.etapas-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #545b62;
-  transition: background 0.2s, transform 0.2s;
-}
-
-.etapas-dot.active {
-  background: #e8a93a;
-  transform: scale(1.6);
-}
-
-/* Fallback for mobile / reduced motion: stacked, no scroll-jacking */
-.etapas-static.etapas-pinwrap {
-  height: auto;
-}
-
-.etapas-static .etapas-pininner {
-  position: static;
-  height: auto;
-  overflow: visible;
-  display: block;
-}
-
-.etapas-static .etapas-track {
-  flex-direction: column;
-  transform: none !important;
-}
-
-.etapas-static .etapas-panel {
-  width: 100vw;
-  height: auto;
-  grid-template-columns: 1fr;
-  padding: 60px 24px;
-}
-
-@media (max-width: 760px) {
-  .etapas-pinwrap {
-    height: auto;
-  }
-  .etapas-pininner {
-    position: static;
-    height: auto;
-    overflow: visible;
-    display: block;
-  }
-  .etapas-track {
-    flex-direction: column;
-    transform: none !important;
-  }
-  .etapas-panel {
-    width: 100vw;
-    height: auto;
-    grid-template-columns: 1fr;
-    padding: 60px 24px;
-  }
-  .etapas-num {
-    font-size: 5rem;
-  }
-  .etapas-progress {
-    display: none;
+@media (min-width: 640px) {
+  .eo-card {
+    width: 320px;
   }
 }
