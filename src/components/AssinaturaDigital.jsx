@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { X, CheckCircle2 } from "lucide-react";
 import { useAppData } from "../context/AppData.jsx";
 
@@ -103,46 +104,87 @@ export default function AssinaturaDigital({ obra, onClose }) {
   };
 
   return (
-    <div style={overlayStyle} onClick={onClose}>
-      <div onClick={(e) => e.stopPropagation()} style={boxStyle}>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      style={overlayStyle}
+      onClick={onClose}
+    >
+      <motion.div
+        onClick={(e) => e.stopPropagation()}
+        initial={{ opacity: 0, scale: 0.92, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.92, y: 16 }}
+        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+        style={boxStyle}
+      >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
           <div style={{ fontSize: "14px", fontWeight: 600 }}>Assinatura Digital — {obra.nome}</div>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "#8FA6BC", cursor: "pointer" }}><X size={16} /></button>
         </div>
 
-        {jaAssinado ? (
-          <div style={{ textAlign: "center", padding: "24px 0" }}>
-            <CheckCircle2 size={40} color="#4ADE80" style={{ marginBottom: "10px" }} />
-            <div style={{ fontSize: "15px", fontWeight: 700, color: "#4ADE80" }}>Contrato assinado</div>
-            <div style={{ fontSize: "12.5px", color: "#8FA6BC", marginTop: "6px" }}>
-              Assinado por {contrato.assinanteNome} em {new Date(contrato.dataAssinatura).toLocaleDateString("pt-BR")}
-            </div>
-            {contrato.assinaturaBase64 && (
-              <img src={contrato.assinaturaBase64} alt="Assinatura" style={{ marginTop: "14px", width: "100%", borderRadius: "8px", border: "1px solid #1E3350" }} />
-            )}
-          </div>
-        ) : (
-          <>
-            <div style={contratoBox}>{contrato?.texto || CONTRATO_MODELO}</div>
+        <AnimatePresence mode="wait">
+          {jaAssinado ? (
+            <motion.div
+              key="assinado"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              style={{ textAlign: "center", padding: "24px 0" }}
+            >
+              <motion.div
+                initial={{ scale: 0, rotate: -20 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 260, damping: 16, delay: 0.1 }}
+              >
+                <CheckCircle2 size={40} color="#4ADE80" style={{ marginBottom: "10px" }} />
+              </motion.div>
+              <div style={{ fontSize: "15px", fontWeight: 700, color: "#4ADE80" }}>Contrato assinado</div>
+              <div style={{ fontSize: "12.5px", color: "#8FA6BC", marginTop: "6px" }}>
+                Assinado por {contrato.assinanteNome} em {new Date(contrato.dataAssinatura).toLocaleDateString("pt-BR")}
+              </div>
+              {contrato.assinaturaBase64 && (
+                <motion.img
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2, duration: 0.3 }}
+                  src={contrato.assinaturaBase64}
+                  alt="Assinatura"
+                  style={{ marginTop: "14px", width: "100%", borderRadius: "8px", border: "1px solid #1E3350" }}
+                />
+              )}
+            </motion.div>
+          ) : (
+            <motion.div key="formulario" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>
+              <div style={contratoBox}>{contrato?.texto || CONTRATO_MODELO}</div>
 
-            <label style={labelStyle}>
-              Nome completo de quem assina
-              <input value={nome} onChange={(e) => setNome(e.target.value)} style={inputStyle} placeholder="Digite o nome" />
-            </label>
+              <label style={labelStyle}>
+                Nome completo de quem assina
+                <input value={nome} onChange={(e) => setNome(e.target.value)} style={inputStyle} placeholder="Digite o nome" />
+              </label>
 
-            <label style={labelStyle}>Assine no campo abaixo (use o dedo ou o mouse)</label>
-            <canvas ref={canvasRef} style={canvasStyle} />
-            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "14px" }}>
-              <button onClick={limparCanvas} style={limparBtn}>Limpar</button>
-            </div>
+              <label style={labelStyle}>Assine no campo abaixo (use o dedo ou o mouse)</label>
+              <canvas ref={canvasRef} style={canvasStyle} />
+              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "14px" }}>
+                <motion.button whileTap={{ scale: 0.95 }} onClick={limparCanvas} style={limparBtn}>Limpar</motion.button>
+              </div>
 
-            <button onClick={confirmar} disabled={!temTraco || nome.trim().length < 2} style={{ ...confirmarBtn, opacity: temTraco && nome.trim().length >= 2 ? 1 : 0.5 }}>
-              Confirmar Assinatura
-            </button>
-          </>
-        )}
-      </div>
-    </div>
+              <motion.button
+                whileHover={temTraco && nome.trim().length >= 2 ? { scale: 1.02 } : {}}
+                whileTap={temTraco && nome.trim().length >= 2 ? { scale: 0.97 } : {}}
+                onClick={confirmar}
+                disabled={!temTraco || nome.trim().length < 2}
+                style={{ ...confirmarBtn, opacity: temTraco && nome.trim().length >= 2 ? 1 : 0.5 }}
+              >
+                Confirmar Assinatura
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.div>
   );
 }
 
