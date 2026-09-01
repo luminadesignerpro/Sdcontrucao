@@ -1,29 +1,33 @@
-# Construção Civil App
+# Construção Civil App (CONSTRUTOP — demonstração)
 
-App white label para empresas de construção civil, pedreiros e serventes.
+App white label para empresas de construção civil, empreiteiros, pedreiros e serventes.
 Reaproveita a estrutura dos projetos [sdmoveisprojetados](https://github.com/luminadesignerpro/sdmoveisprojetados) e [Projmarmores](https://github.com/luminadesignerpro/Projmarmores).
+
+Nome e identidade visual são fictícios, apenas para demonstração.
 
 ## Status atual
 
-Protótipo funcional do **Editor de Ambientes** (estilo Promob simplificado):
+Módulos prontos:
 
-- Catálogo de módulos por categoria (Cozinha, Banheiro, Quarto, Área Externa)
-- Criação de módulos customizados (nome, medidas, altura, cor, preço)
-- Ambiente em formato retângulo ou L
-- Preview 3D isométrico simplificado (CSS, sem motor 3D pesado)
-- Orçamento estimado em tempo real conforme os módulos são posicionados
+- **Login** — 3 níveis de acesso de demonstração (Administrador, Mestre de Obra, Cliente Final)
+- **Gestão de Obra** — cadastro de obra/cliente, etapas com progresso, diário de obra, assinatura digital de contrato
+- **Editor de Ambientes** (estilo Promob simplificado) — catálogo por categoria, módulo customizado, formato L, preview 3D, orçamento em tempo real
+- **Funcionários e Funções** — cadastro de equipe, cargos customizáveis, valor por diária/empreitada
+- **Financeiro** — receitas/despesas, pagamento de diária com 1 toque, fluxo de caixa por obra
+- **Calculadoras de Campo** — traço de concreto/argamassa, tijolos/blocos, rendimento de tinta
+
+## Contas de demonstração (login)
+
+- `admin` / `admin123` — Administrador
+- `mestre` / `mestre123` — Mestre de Obra
+- `cliente` / `cliente123` — Cliente Final
 
 ## Ainda não implementado (próximos passos)
 
-- [ ] Persistência (Supabase) — hoje tudo fica só na memória do navegador
-- [ ] Autenticação e níveis de acesso (Administrador/Construtora, Engenheiro/Mestre de Obra, Pedreiro/Servente, Cliente Final)
-- [ ] Diário de Obra Digital (fotos, clima, mão de obra do dia)
-- [ ] Cronograma de etapas (Gantt simplificado)
-- [ ] Calculadoras de campo (traço de concreto, quantidade de tijolos, rendimento de tinta)
-- [ ] Exportação de PDF real da planta e do orçamento
-- [ ] Vínculo entre ambiente montado no editor e etapa da obra
-- [ ] Multi-tenant / white label (marca, cores e domínio por cliente)
-- [ ] Desenho de paredes livre (hoje só retângulo ou L fixo)
+- [ ] Persistência (Supabase) — hoje tudo fica só na memória do navegador, some ao atualizar a página
+- [ ] White label de verdade (marca, cores e domínio por cliente)
+- [ ] Desenho de paredes livre no editor de ambientes (hoje só retângulo ou L fixo)
+- [ ] Exportação de PDF real da planta, orçamento e contrato
 
 ## Rodando localmente
 
